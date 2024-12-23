@@ -4,6 +4,50 @@ import { useState } from 'react'
 export default function Home() {
   const [wallet, setWalletAddress] = useState("");
   const [collection, setCollectionAddress] = useState("");
+  const [NFTs, setNFTs] = useState([]);
+  const [fetchForCollection, setFetchForCollection] = useState(false)
+
+  const fetchNFTs = async () => {
+    let nfts;
+    console.log("fetching nfts");
+    const api_key = "SBQcEdnvvZdzGjaYuCW5eWaO42OO61H2"
+    const baseURL = `https://eth-mainnet.g.alchemy.com/nft/v3/${api_key}/getNFTsForOwner/`;
+    var requestOptions = {
+      method: 'GET'
+    };
+
+    if (!collection.length) {
+
+      const fetchURL = `${baseURL}?owner=${wallet}`;
+
+      nfts = await fetch(fetchURL, requestOptions).then(data => data.json())
+    } else {
+      console.log("fetching nfts for collection owned by address")
+      const fetchURL = `${baseURL}?owner=${wallet}&contractAddresses%5B%5D=${collection}`;
+      nfts = await fetch(fetchURL, requestOptions).then(data => data.json())
+    }
+
+    if (nfts) {
+      console.log("nfts:", nfts)
+      setNFTs(nfts.ownedNfts)
+    }
+  }
+
+  const fetchNFTsForCollection = async () => {
+    if (collection.length) {
+      var requestOptions = {
+        method: 'GET'
+      };
+      const api_key = "SBQcEdnvvZdzGjaYuCW5eWaO42OO61H2"
+      const baseURL = `https://eth-mainnet.g.alchemy.com/nft/v3/${api_key}/getNFTsForCollection/`;
+      const fetchURL = `${baseURL}?contractAddress=${collection}&withMetadata=${"true"}`;
+      const nfts = await fetch(fetchURL, requestOptions).then(data => data.json())
+      if (nfts) {
+        console.log("NFTs in collection:", nfts)
+        setNFTs(nfts.nfts)
+      }
+    }
+  }
 
   return (
     <div className="flex flex-col items-center justify-center py-8 gap-y-3">
@@ -23,10 +67,25 @@ export default function Home() {
           value={collection}
         />
         <label className="text-gray-600 ">
-          <input type={"checkbox"} className="mr-2"></input>
+          <input
+            type={"checkbox"}
+            className="mr-2"
+            onChange={(e) => { setFetchForCollection(e.target.checked) }}
+          />
           Fetch for collection
         </label>
-        <button className={"disabled:bg-slate-500 text-white bg-blue-400 px-4 py-2 mt-3 rounded-sm w-1/5"}>Let's go! </button>
+        <button
+          className={"disabled:bg-slate-500 text-white bg-blue-400 px-4 py-2 mt-3 rounded-sm w-1/5"}
+          onClick={() => {
+            if (fetchForCollection) {
+              fetchNFTsForCollection()
+            } else {
+              fetchNFTs();
+            }
+          }}
+        >
+          Let's go!
+        </button>
       </div>
     </div>
   );
