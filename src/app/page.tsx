@@ -1,14 +1,23 @@
 'use client'
 import { useState } from 'react'
+import NFTCard, { NFT } from '@/components/nftCard';
+
+type NFTData = {
+  ownedNfts: NFT[]
+}
+
+type NFTDataInCollection = {
+  nfts: NFT[]
+}
 
 export default function Home() {
   const [wallet, setWalletAddress] = useState("");
   const [collection, setCollectionAddress] = useState("");
-  const [NFTs, setNFTs] = useState([]);
+  const [NFTs, setNFTs] = useState<NFT[]>([]);
   const [fetchForCollection, setFetchForCollection] = useState(false)
 
   const fetchNFTs = async () => {
-    let nfts;
+    let nfts: NFTData;
     console.log("fetching nfts");
     const api_key = "SBQcEdnvvZdzGjaYuCW5eWaO42OO61H2"
     const baseURL = `https://eth-mainnet.g.alchemy.com/nft/v3/${api_key}/getNFTsForOwner/`;
@@ -41,7 +50,7 @@ export default function Home() {
       const api_key = "SBQcEdnvvZdzGjaYuCW5eWaO42OO61H2"
       const baseURL = `https://eth-mainnet.g.alchemy.com/nft/v3/${api_key}/getNFTsForCollection/`;
       const fetchURL = `${baseURL}?contractAddress=${collection}&withMetadata=${"true"}`;
-      const nfts = await fetch(fetchURL, requestOptions).then(data => data.json())
+      const nfts: NFTDataInCollection = await fetch(fetchURL, requestOptions).then(data => data.json())
       if (nfts) {
         console.log("NFTs in collection:", nfts)
         setNFTs(nfts.nfts)
@@ -86,6 +95,15 @@ export default function Home() {
         >
           Let's go!
         </button>
+      </div>
+      <div className='flex flex-wrap gap-y-12 mt-4 w-5/6 gap-x-2 justify-center'>
+        {
+          NFTs.length && NFTs.map(nft => {
+            return (
+              <NFTCard nft={nft} key={nft.tokenId}></NFTCard>
+            )
+          })
+        }
       </div>
     </div>
   );
