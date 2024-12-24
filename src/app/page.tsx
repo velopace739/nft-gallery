@@ -19,7 +19,7 @@ export default function Home() {
   const fetchNFTs = async () => {
     let nfts: NFTData;
     console.log("fetching nfts");
-    const api_key = "SBQcEdnvvZdzGjaYuCW5eWaO42OO61H2"
+    const api_key = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY;
     const baseURL = `https://eth-mainnet.g.alchemy.com/nft/v3/${api_key}/getNFTsForOwner/`;
     var requestOptions = {
       method: 'GET'
@@ -47,7 +47,7 @@ export default function Home() {
       var requestOptions = {
         method: 'GET'
       };
-      const api_key = "SBQcEdnvvZdzGjaYuCW5eWaO42OO61H2"
+      const api_key = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY;
       const baseURL = `https://eth-mainnet.g.alchemy.com/nft/v3/${api_key}/getNFTsForCollection/`;
       const fetchURL = `${baseURL}?contractAddress=${collection}&withMetadata=${"true"}`;
       const nfts: NFTDataInCollection = await fetch(fetchURL, requestOptions).then(data => data.json())
